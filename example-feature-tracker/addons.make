@@ -1,0 +1,4 @@
+ofxCvCameraProjector
+ofxCvFeaturesTracker
+ofxCv
+ofxOpenCv
