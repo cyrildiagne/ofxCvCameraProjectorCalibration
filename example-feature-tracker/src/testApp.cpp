@@ -10,23 +10,29 @@ void testApp::setup() {
     ofSetLogLevel(OF_LOG_VERBOSE);
     ofSetFrameRate(31);
     
-    camproj.setup(ofRectangle(0, 0, SCREEN_WIDTH, ofGetHeight()), // screen viewport
-                  ofRectangle(SCREEN_WIDTH, 0, PROJECTOR_WIDTH, ofGetHeight())); // videoproj viewport
-    
-    rotObjToCam = Mat::zeros(3, 1, CV_64F);
-    transObjToCam = Mat::zeros(3, 1, CV_64F);
-    
-    trackedImg.loadImage("ville_crea.png");
-    
     cam.initGrabber(640, 480);
     
-    tracker.setup(camproj.getCalibrationCamera());
-    tracker.add(trackedImg);
-    tracker.startThread();
+    setupCamProj();
+    setupTracker();
     
     bDrawDebug = true;
     bDrawWithCV = false;
     bFound = false;
+}
+
+void testApp::setupCamProj(){
+    rotObjToCam = Mat::zeros(3, 1, CV_64F);
+    transObjToCam = Mat::zeros(3, 1, CV_64F);
+    ofRectangle screenRect    = ofRectangle(0, 0, SCREEN_WIDTH, ofGetHeight());
+    ofRectangle projectorRect = ofRectangle(SCREEN_WIDTH, 0, PROJECTOR_WIDTH, ofGetHeight());
+    camproj.setup(screenRect, projectorRect);
+}
+
+void testApp::setupTracker(){
+    trackedImg.loadImage("ville_crea.png");
+    tracker.setup(camproj.getCalibrationCamera());
+    tracker.add(trackedImg);
+    tracker.startThread();
 }
 
 void testApp::exit() {
@@ -83,7 +89,8 @@ void testApp::draw() {
 	if(bFound) {
         
         if(bDrawDebug){
-            //tracker.draw();
+            tracker.draw();
+            ofLog() << "zob";
             ofDrawBitmapString(camproj.toString(), 20, 500);
         }
         

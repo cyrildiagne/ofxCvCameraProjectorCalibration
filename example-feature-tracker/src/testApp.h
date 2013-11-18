@@ -19,6 +19,7 @@ public:
     void exit();
     void keyPressed(int key);
 	
+    
     // draw with OpenCV projection method (slower but useful for debug)
     void drawUsingCV();
     
@@ -26,6 +27,9 @@ public:
     void drawUsingGL();
     
 private:
+    
+    void setupCamProj();
+    void setupTracker();
     
 	ofVideoGrabber cam;
     ofImage trackedImg;
