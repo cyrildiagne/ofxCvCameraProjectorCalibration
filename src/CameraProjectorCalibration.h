@@ -47,12 +47,16 @@ public:
     cv::Mat & getProcessedImg() { return processedImg; }
     
     // params
+    ofParameterGroup boardsParams;
     ofParameter<int> numBoardsFinalCamera;
     ofParameter<int> numBoardsFinalProjector;
     ofParameter<int> numBoardsBeforeCleaning;
     ofParameter<int> numBoardsBeforeDynamicProjection;
     ofParameter<float> maxReprojErrorCamera;
     ofParameter<float> maxReprojErrorProjector;
+    
+    ofParameterGroup imageProcessingParams;
+    ofParameter<int> circleDetectionThreshold;
     
 private:
     

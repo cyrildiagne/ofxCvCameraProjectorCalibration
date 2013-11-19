@@ -45,6 +45,10 @@ public:
     
     void setupCandidateImagePoints();
     
+    void resetBoards();
+    
+    void stereoCalibration(CameraCalibration & cameraCalibration);
+    
     // getter & setters
     
     void setImagerSize(int width, int height);
@@ -63,10 +67,10 @@ protected:
     cv::Size imagerSize;
     cv::Point2f patternPosition;
     
-private:
+    cv::Mat rotCamToProj;
+    cv::Mat transCamToProj;
     
-    cv::Mat rotationVector;
-    cv::Mat translationVector;
+private:
     
     vector<cv::Point2f> candidateImagePoints;
 };

@@ -35,12 +35,16 @@ void CameraProjectorCalibration::setup(CalibState initState){
 
 void CameraProjectorCalibration::setupDefaultParams(){
     
-    numBoardsFinalCamera                = 20;
-    numBoardsFinalProjector             = 12;
-    numBoardsBeforeCleaning             = 8;
-    numBoardsBeforeDynamicProjection    = 5;
-    maxReprojErrorCamera                = 0.2;
-    maxReprojErrorProjector             = 0.5;
+    boardsParams.setName("Boards Params");
+    boardsParams.add( numBoardsFinalCamera.set("Num boards Camera", 20, 10, 30) );
+    boardsParams.add( numBoardsFinalProjector.set("Num boards Projector", 12, 6, 15) );
+    boardsParams.add( numBoardsBeforeCleaning.set("Num boards before cleaning", 8, 5, 10) );
+    boardsParams.add( numBoardsBeforeDynamicProjection.set("Num boards before dynamic proj", 5, 3, 10) );
+    boardsParams.add( maxReprojErrorCamera.set("Max reproj error Camera", 0.2, 0.1, 0.5) );
+    boardsParams.add( maxReprojErrorProjector.set("Max reproj error Projector", 0.45, 0.1, 1.0) );
+    
+    imageProcessingParams.setName("Processing Params");
+    imageProcessingParams.add( circleDetectionThreshold.set("Circle image threshold", 220, 150, 255) );
 }
 
 #pragma mark - camera
@@ -54,30 +58,29 @@ bool CameraProjectorCalibration::addCameraBoard(cv::Mat img){
         
         calibrationCamera.calibrate();
         
-        if(calibrationCamera.size() > numBoardsBeforeCleaning) {
+        if(calibrationCamera.size() >= numBoardsBeforeCleaning) {
         
-            if(bLog) log << "Cleaning..." << endl;
+            if(bLog) log << "Cleaning" << endl;
             
             calibrationCamera.clean(maxReprojErrorCamera);
             
             if(calibrationCamera.getReprojectionError(calibrationCamera.size()-1) > maxReprojErrorCamera) {
-                if(bLog) log << "Board found, but reproj. error is too high, skipping..." << endl;
+                if(bLog) log << "Board found, but reproj. error is too high, skipping" << endl;
                 return false;
             }
         }
         
         if (calibrationCamera.size()>=numBoardsFinalCamera) {
         
-            if(bLog) log << "camera calibration done & saved to calibrationCamera.yml." << endl;
+            if(bLog) log << "Camera calibration finished & saved to calibrationCamera.yml" << endl;
             
             calibrationCamera.save("calibrationCamera.yml");
             
             setState(PROJECTOR_STATIC);
             
             if(bLog) log << "switching mode to PROJECTOR_STATIC" << endl;
-            // TODO: delete all boards from calibrationCamera
         }
-    } else if(bLog) log << "Could not find board." << endl;
+    } else if(bLog) log << "Could not find board" << endl;
     
     return bFound;
 }
@@ -88,20 +91,21 @@ bool CameraProjectorCalibration::detectPrintedAndProjectedPatterns(cv::Mat img){
     bool bPrintedPatternFound = calibrationCamera.findBoard(img, chessImgPts, true);
     
     if(bPrintedPatternFound) {
-        if(bLog) log << "Found printed chessboard. Looking for projected circles.." << endl;
         
         if(img.type() != CV_8UC1) {
             cvtColor(img, processedImg, CV_RGB2GRAY);
         } else {
             processedImg = img;
         }
-        cv::threshold(processedImg, processedImg, 230, 255, cv::THRESH_BINARY_INV);
+        cv::threshold(processedImg, processedImg, circleDetectionThreshold, 255, cv::THRESH_BINARY_INV);
         
         vector<cv::Point2f> circlesImgPts;
         bool bProjectedPatternFound = cv::findCirclesGrid(processedImg, calibrationProjector.getPatternSize(), circlesImgPts, cv::CALIB_CB_ASYMMETRIC_GRID);
         
         if(bProjectedPatternFound){
+            
             if(bLog) log << "Found projected circles! Adding points.." << endl;
+            
             vector<cv::Point3f> circlesObjectPts;
             cv::Mat boardRot;
             cv::Mat boardTrans;
@@ -119,6 +123,25 @@ bool CameraProjectorCalibration::detectPrintedAndProjectedPatterns(cv::Mat img){
             if(bLog) log << "Calibrating projector.." << endl;
             
             calibrationProjector.calibrate();
+            
+            if(calibrationProjector.size() >= numBoardsBeforeCleaning) {
+                
+                if(bLog) log << "Cleaning" << endl;
+                
+                // TODO : SIMULTANEOUS ClEAN !!
+            }
+            
+            if(bLog) log << "Performing stereo-calibration.." << endl;
+            
+            calibrationProjector.stereoCalibration(calibrationCamera);
+            
+            if(bLog) log << "Done. " << numBoardsFinalProjector - calibrationProjector.size() << " boards to go." << endl;
+        }
+        else {
+            /*
+            if(bLog) log << "Found chessboard but could'nt find projected circles." << endl
+                         << "> Adjust board or settings to see the circles on the processed image!" << endl;
+            */
         }
         return bProjectedPatternFound;
     }
@@ -163,20 +186,19 @@ void CameraProjectorCalibration::setState(CalibState state){
     
     switch (state) {
         case CAMERA:
-            // TODO: clear projector
+            calibrationProjector.resetBoards();
             calibrationCamera.resetBoards();
             break;
         case PROJECTOR_STATIC:
-            // TODO: clear projector
             calibrationCamera.load("calibrationCamera.yml");
             calibrationCamera.resetBoards();
             calibrationCamera.setupCandidateObjectPoints();
+            calibrationProjector.resetBoards();
             calibrationProjector.setupCandidateImagePoints();
             break;
         default:
             break;
     }
-    
     currState = state;
     
     if(bLog) log << "Set state : " << getCurrentStateString() << endl;

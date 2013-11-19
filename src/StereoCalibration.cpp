@@ -86,7 +86,6 @@ bool CameraCalibration::backProject(const Mat& boardRot64, const Mat& boardTrans
 #pragma mark - ProjectorCalibration
 
 void ProjectorCalibration::setupCandidateImagePoints(){
-    
     candidateImagePoints.clear();
     Point2f p;
     for(int i = 0; i < patternSize.height; i++) {
@@ -96,6 +95,47 @@ void ProjectorCalibration::setupCandidateImagePoints(){
             candidateImagePoints.push_back(p);
         }
     }
+}
+
+void ProjectorCalibration::resetBoards(){
+    objectPoints.clear();
+    imagePoints.clear();
+    boardRotations.clear();
+    boardTranslations.clear();
+}
+
+void ProjectorCalibration::stereoCalibration(CameraCalibration & cameraCalibration){
+    
+    vector<vector<Point2f> > auxImagePointsCamera;
+    for (int i=0; i<objectPoints.size() ; i++ ) {
+        vector<Point2f> auxImagePoints;
+        projectPoints(Mat(objectPoints[i]),
+                      cameraCalibration.getBoardRotations()[i],
+                      cameraCalibration.getBoardTranslations()[i],
+                      cameraCalibration.getDistortedIntrinsics().getCameraMatrix(),
+                      cameraCalibration.getDistCoeffs(),
+                      auxImagePoints);
+        
+        auxImagePointsCamera.push_back(auxImagePoints);
+    }
+    
+    Mat fundamentalMatrix, essentialMatrix;
+    Mat projectorMatrix     = getDistortedIntrinsics().getCameraMatrix();
+    Mat projectorDistCoeffs = getDistCoeffs();
+    Mat cameraMatrix        = cameraCalibration.getDistortedIntrinsics().getCameraMatrix();
+    Mat cameraDistCoeffs    = cameraCalibration.getDistCoeffs();
+    
+    Mat rotation3x3;
+    cv::stereoCalibrate(objectPoints,           // common "3d" points (on the board)
+                        auxImagePointsCamera,   // image points for the camera
+                        imagePoints,            // image points for the projector
+                        cameraMatrix, cameraDistCoeffs,
+                        projectorMatrix, projectorDistCoeffs,
+                        cameraCalibration.getDistortedIntrinsics().getImageSize(), // <--- only used for initialization
+                        rotation3x3, transCamToProj,  // << ----  OUPUT: position of CAMERA in PROJECTOR coordinate frame
+                        essentialMatrix, fundamentalMatrix); // << ---- this is also the result (but is not made avaiblable by the method)
+    
+    cv::Rodrigues(rotation3x3, rotCamToProj);
 }
 
 //--

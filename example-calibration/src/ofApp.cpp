@@ -20,10 +20,10 @@ void ofApp::setup(){
 	imitate(previous, cam);
 	imitate(diff, cam);
     
+    camProjCalib.setup(PROJECTOR_STATIC); //CAMERA
+    
     setupDefaultParams();
     setupGui();
-    
-    camProjCalib.setup(PROJECTOR_STATIC); //CAMERA
     
 	lastTime = 0;
     bProjectRefreshLock = true;
@@ -31,28 +31,31 @@ void ofApp::setup(){
 
 void ofApp::setupDefaultParams(){
     
-    diffMinBetweenFrames.set("Difference min. between frames", 4.0, 0, 10);
-    timeMinBetweenCaptures.set("Time min. between captures", 2.0, 0, 10);
+    diffMinBetweenFrames.set("Difference min between frames", 4.0, 0, 10);
+    timeMinBetweenCaptures.set("Time min between captures", 2.0, 0, 10);
 }
 
 void ofApp::setupGui(){
     
-    gui.setDefaultWidth(270);
+    gui.setDefaultWidth(300);
     gui.setDefaultBorderColor(ofColor(0,0,0));
     gui.setDefaultBackgroundColor(ofColor(0,0,0));
     gui.setDefaultFillColor(ofColor::royalBlue);
     
-    gui.setup("CameraProjectorCalibration", "settings.xml");
+    gui.setup("", "settings.xml");
     gui.setBorderColor(ofColor(0,0,0,0));
     gui.setBackgroundColor(ofColor(0,0,0,0));
-    gui.setPosition(650, 10);
+    gui.setPosition(640*1.5 + 10, 10);
     
-    gui.add( currState.set("Current State :", camProjCalib.getCurrentStateString()) );
+    gui.add( currState.set("Current State", camProjCalib.getCurrentStateString()) );
     
     params.setName("Application");
     params.add( diffMinBetweenFrames );
     params.add( timeMinBetweenCaptures );
     gui.add(params);
+    
+    gui.add(camProjCalib.boardsParams);
+    gui.add(camProjCalib.imageProcessingParams);
     
     gui.loadFromFile("settings.xml");
 }
@@ -128,7 +131,7 @@ void ofApp::draw(){
             break;
         case PROJECTOR_STATIC:
             if(ofxCv::getAllocated(camProjCalib.getProcessedImg())){
-                ofxCv::drawMat(camProjCalib.getProcessedImg(), 640, 240, 320, 240);
+                ofxCv::drawMat(camProjCalib.getProcessedImg(), 640, 0, 320, 240);
             }
             camProjCalib.drawProjectorStatic();
             break;
@@ -140,8 +143,7 @@ void ofApp::draw(){
             break;
     }
     
-    
-    ofDrawBitmapString(camProjCalib.getLog(), 10, cam.height+20);
+    ofDrawBitmapString(camProjCalib.getLog(20), 10, cam.height+20);
 }
 
 void ofApp::drawReprojErrors(){
