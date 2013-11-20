@@ -59,8 +59,7 @@ void testApp::update() {
             tracker.getRT(rvec, tvec);
             
             // hacks to adjust results
-            for (int i=0; i<3; i++) { *tvec.ptr<double>(i) *= 26; } // TODO : find this scaling value in configuration file
-            *tvec.ptr<double>(1) += 1.5; // TODO : remove this hack to get Y axis right
+            for (int i=0; i<3; i++) { *tvec.ptr<double>(i) *= 9.3; } // TODO : find this scaling value in configuration files
             
             // smooth results
             rotObjToCam += (rvec-rotObjToCam) * 0.3;
@@ -90,7 +89,6 @@ void testApp::draw() {
         
         if(bDrawDebug){
             tracker.draw();
-            ofLog() << "zob";
             ofDrawBitmapString(camproj.toString(), 20, 500);
         }
         
@@ -102,8 +100,8 @@ void testApp::draw() {
 void testApp::drawUsingCV(){
     
     // set some input points
-    int w = 15;
-    int h = 24;
+    float w = 12.5 / 2;
+    int h = 19 / 2;
     vector<ofPoint> inPts;
     inPts.push_back(ofPoint(-w, -h, 0));
     inPts.push_back(ofPoint(w, -h, 0));
@@ -137,8 +135,7 @@ void testApp::drawUsingGL(){
     
     camproj.beginGL();
     
-    ofScale(0.115, 0.115, 0); // todo : find this value in configuration file
-    ofTranslate(-15, 0); // todo : remove translation hack
+    ofScale(0.04, 0.04, 0); // todo : find this value in configuration files
     
     // project some square animation
     float w = trackedImg.width;

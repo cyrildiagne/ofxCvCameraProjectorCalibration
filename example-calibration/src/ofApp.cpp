@@ -20,13 +20,16 @@ void ofApp::setup(){
 	imitate(previous, cam);
 	imitate(diff, cam);
     
-    camProjCalib.setup(PROJECTOR_STATIC); //CAMERA
+    screenRect.set(0,0,1280,800);
+    projectorRect.set(1280,0,1280,800);
+    
+    camProjCalib.setup(PROJECTOR_STATIC, projectorRect.width, projectorRect.height);
     
     setupDefaultParams();
     setupGui();
     
 	lastTime = 0;
-    bProjectRefreshLock = true;
+    bProjectorRefreshLock = true;
 }
 
 void ofApp::setupDefaultParams(){
@@ -69,26 +72,35 @@ void ofApp::update(){
 	if(cam.isFrameNew()) {		
 		Mat camMat = toCv(cam);
         
-        if( !updateCamDiff(camMat) ){
-            return;
-        }
-        
         switch (camProjCalib.getCurrentState()) {
             case CAMERA:
-                if(camProjCalib.addCameraBoard(camMat)){
+                if( !updateCamDiff(camMat) ){
+                    return;
+                }
+                if(camProjCalib.calibrateCamera(camMat)){
                     lastTime = ofGetElapsedTimef();
                 }
                 break;
             case PROJECTOR_STATIC:
-                if(camProjCalib.detectPrintedAndProjectedPatterns(camMat)){
+                if( !updateCamDiff(camMat) ){
+                    return;
+                }
+                if(camProjCalib.calibrateProjector(camMat)){
                     lastTime = ofGetElapsedTimef();
                 }
                 break;
             case PROJECTOR_DYNAMIC:
-                if(bProjectRefreshLock){
-                    bProjectRefreshLock = false;
+                if(bProjectorRefreshLock){
+                    if(camProjCalib.setDynamicProjectorImagePoints(camMat)){
+                        if( !updateCamDiff(camMat) ){
+                            return;
+                        }
+                        bProjectorRefreshLock = false;
+                    }
                 } else {
-                    bProjectRefreshLock = true;
+                    camProjCalib.calibrateProjector(camMat);
+                    bProjectorRefreshLock = true;
+                    lastTime = ofGetElapsedTimef();
                 }
                 break;
             default: break;
@@ -115,7 +127,7 @@ bool ofApp::updateCamDiff(cv::Mat camMat) {
 void ofApp::draw(){
     
     cam.draw(0, 0);
-    camProjCalib.drawLastCameraImagePoints();
+    drawLastCameraImagePoints();
     
     currState = camProjCalib.getCurrentStateString();
     
@@ -123,20 +135,20 @@ void ofApp::draw(){
     
     ofDrawBitmapStringHighlight("Movement: "+ofToString(diffMean), 10, 20, ofxCv::cyanPrint);
     
-    drawReprojErrors();
+    drawReprojErrors("Camera", camProjCalib.getCalibrationCamera(), 40);
     
     switch (camProjCalib.getCurrentState()) {
         case CAMERA:
-            drawCameraReprojLog();
+            drawReprojLog(camProjCalib.getCalibrationCamera(), 60);
             break;
         case PROJECTOR_STATIC:
+        case PROJECTOR_DYNAMIC:
+            drawReprojErrors("Projector", camProjCalib.getCalibrationProjector(), 60);
+            drawReprojLog(camProjCalib.getCalibrationProjector(), 80);
             if(ofxCv::getAllocated(camProjCalib.getProcessedImg())){
                 ofxCv::drawMat(camProjCalib.getProcessedImg(), 640, 0, 320, 240);
             }
-            camProjCalib.drawProjectorStatic();
-            break;
-        case PROJECTOR_DYNAMIC:
-            
+            drawProjectorPattern();
             break;
             
         default:
@@ -146,31 +158,53 @@ void ofApp::draw(){
     ofDrawBitmapString(camProjCalib.getLog(20), 10, cam.height+20);
 }
 
-void ofApp::drawReprojErrors(){
+void ofApp::drawReprojErrors(string name, const ofxCv::Calibration & calib, int y){
     
     string buff;
-    const ofxCv::Calibration & camCalib = camProjCalib.getCalibrationCamera();
-    buff = "Camera Reproj. Error: " + ofToString(camCalib.getReprojectionError(), 2);
-    buff += " from " + ofToString(camCalib.size());
-    ofDrawBitmapStringHighlight(buff, 10, 40, ofxCv::magentaPrint);
-    
-    const ofxCv::Calibration & projCalib = camProjCalib.getCalibrationProjector();
-    buff = "Projector Reproj. Error: " + ofToString(projCalib.getReprojectionError(), 2);
-    buff += " from " + ofToString(projCalib.size());
-    ofDrawBitmapStringHighlight(buff, 10, 60, ofxCv::magentaPrint);
+    buff = name + " Reproj. Error: " + ofToString(calib.getReprojectionError(), 2);
+    buff += " from " + ofToString(calib.size());
+    ofDrawBitmapStringHighlight(buff, 10, y, ofxCv::magentaPrint);
 }
 
-void ofApp::drawCameraReprojLog(){
-    
-    const ofxCv::Calibration & camCalib = camProjCalib.getCalibrationCamera();
+void ofApp::drawReprojLog(const ofxCv::Calibration & calib, int y) {
     
     string buff;
-	for(int i = 0; i < camCalib.size(); i++) {
-        buff = ofToString(i) + ": " + ofToString(camCalib.getReprojectionError(i));
-		ofDrawBitmapStringHighlight(buff, 10, 60 + 16 * i, ofxCv::magentaPrint);
+	for(int i = 0; i < calib.size(); i++) {
+        buff = ofToString(i) + ": " + ofToString(calib.getReprojectionError(i));
+		ofDrawBitmapStringHighlight(buff, 10, y + 16 * i, ofxCv::magentaPrint);
 	}
 }
 
+void ofApp::drawLastCameraImagePoints(){
+    
+    const auto & imagePoints = camProjCalib.getCalibrationCamera().imagePoints;
+    
+    if(imagePoints.size()<=0) return;
+    
+    ofPushStyle(); ofSetColor(ofColor::blue);
+    for(const auto & p : imagePoints.back()) {
+        ofCircle(ofxCv::toOf(p), 3);
+    }
+    ofPopStyle();
+}
+
+void ofApp::drawProjectorPattern(){
+    
+    ofRectangle vp = ofGetCurrentViewport();
+    ofViewport(projectorRect);
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    gluOrtho2D(0,projectorRect.width, projectorRect.height, 0);
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
+    {
+        ofSetColor(ofColor::white);
+        for(const auto & p : camProjCalib.getCalibrationProjector().getCandidateImagePoints()) {
+            ofCircle(p.x, p.y, 4);
+        }
+    }
+    ofViewport(vp);
+}
 
 #pragma mark - Inputs
 

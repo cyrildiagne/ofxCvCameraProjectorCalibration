@@ -30,7 +30,7 @@
 		C684E41B183AC19700CDEADF /* ofxToggle.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C684E412183AC19700CDEADF /* ofxToggle.cpp */; };
 		C684E497183AC23500CDEADF /* CameraProjectorCalibration.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C684E48B183AC23500CDEADF /* CameraProjectorCalibration.cpp */; };
 		C684E498183AC23500CDEADF /* ofxCvCameraProjector.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C684E48D183AC23500CDEADF /* ofxCvCameraProjector.cpp */; };
-		C684E499183AC23500CDEADF /* StereoCalibration.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C684E48F183AC23500CDEADF /* StereoCalibration.cpp */; };
+		C684E499183AC23500CDEADF /* CustomCalibration.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C684E48F183AC23500CDEADF /* CustomCalibration.cpp */; };
 		E4328149138ABC9F0047C5CB /* openFrameworksDebug.a in Frameworks */ = {isa = PBXBuildFile; fileRef = E4328148138ABC890047C5CB /* openFrameworksDebug.a */; };
 		E45BE97B0E8CC7DD009D7055 /* AGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E45BE9710E8CC7DD009D7055 /* AGL.framework */; };
 		E45BE97C0E8CC7DD009D7055 /* ApplicationServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E45BE9720E8CC7DD009D7055 /* ApplicationServices.framework */; };
@@ -192,8 +192,8 @@
 		C684E48C183AC23500CDEADF /* CameraProjectorCalibration.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CameraProjectorCalibration.h; sourceTree = "<group>"; };
 		C684E48D183AC23500CDEADF /* ofxCvCameraProjector.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ofxCvCameraProjector.cpp; sourceTree = "<group>"; };
 		C684E48E183AC23500CDEADF /* ofxCvCameraProjector.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ofxCvCameraProjector.h; sourceTree = "<group>"; };
-		C684E48F183AC23500CDEADF /* StereoCalibration.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = StereoCalibration.cpp; sourceTree = "<group>"; };
-		C684E490183AC23500CDEADF /* StereoCalibration.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StereoCalibration.h; sourceTree = "<group>"; };
+		C684E48F183AC23500CDEADF /* CustomCalibration.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CustomCalibration.cpp; sourceTree = "<group>"; };
+		C684E490183AC23500CDEADF /* CustomCalibration.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CustomCalibration.h; sourceTree = "<group>"; };
 		E4328143138ABC890047C5CB /* openFrameworksLib.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = openFrameworksLib.xcodeproj; path = ../../../libs/openFrameworksCompiled/project/osx/openFrameworksLib.xcodeproj; sourceTree = SOURCE_ROOT; };
 		E45BE9710E8CC7DD009D7055 /* AGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AGL.framework; path = /System/Library/Frameworks/AGL.framework; sourceTree = "<absolute>"; };
 		E45BE9720E8CC7DD009D7055 /* ApplicationServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ApplicationServices.framework; path = /System/Library/Frameworks/ApplicationServices.framework; sourceTree = "<absolute>"; };
@@ -662,10 +662,10 @@
 			children = (
 				C684E48B183AC23500CDEADF /* CameraProjectorCalibration.cpp */,
 				C684E48C183AC23500CDEADF /* CameraProjectorCalibration.h */,
+				C684E48F183AC23500CDEADF /* CustomCalibration.cpp */,
+				C684E490183AC23500CDEADF /* CustomCalibration.h */,
 				C684E48D183AC23500CDEADF /* ofxCvCameraProjector.cpp */,
 				C684E48E183AC23500CDEADF /* ofxCvCameraProjector.h */,
-				C684E48F183AC23500CDEADF /* StereoCalibration.cpp */,
-				C684E490183AC23500CDEADF /* StereoCalibration.h */,
 			);
 			path = src;
 			sourceTree = "<group>";
@@ -927,7 +927,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				C684E499183AC23500CDEADF /* StereoCalibration.cpp in Sources */,
+				C684E499183AC23500CDEADF /* CustomCalibration.cpp in Sources */,
 				E4B69E200A3A1BDC003C02F2 /* main.cpp in Sources */,
 				b6840996567e78436f7ecfab2ec70089 /* ETF.cpp in Sources */,
 				f76b4a79bd8de4854141cb47028addb7 /* fdog.cpp in Sources */,

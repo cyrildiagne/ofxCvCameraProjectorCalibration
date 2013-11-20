@@ -19,7 +19,6 @@ public:
     void exit();
     void keyPressed(int key);
 	
-    
     // draw with OpenCV projection method (slower but useful for debug)
     void drawUsingCV();
     

@@ -13,7 +13,7 @@ public:
 	void draw();
 	void keyPressed(int key);
     
-    CameraProjectorCalibration camProjCalib;
+    ofxCv::CameraProjectorCalibration camProjCalib;
     
 private:
     
@@ -27,15 +27,21 @@ private:
     bool updateCamDiff(cv::Mat camMat);
 
     // lock to give enough time for the projection to be seen by the camera
-    bool bProjectRefreshLock;
+    bool bProjectorRefreshLock;
+    
+    // screen & projector configuration
+    ofRectangle projectorRect;
+    ofRectangle screenRect;
     
     // gui
     ofxPanel gui;
     void setupGui();
     
     // draw
-    void drawReprojErrors();
-    void drawCameraReprojLog();
+    void drawReprojErrors(string name, const ofxCv::Calibration & calib, int y);
+    void drawReprojLog(const ofxCv::Calibration & calib, int y);
+    void drawLastCameraImagePoints();
+    void drawProjectorPattern();
     
     // params
     void setupDefaultParams();
