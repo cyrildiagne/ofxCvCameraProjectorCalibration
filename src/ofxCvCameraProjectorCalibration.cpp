@@ -1,10 +1,13 @@
-//
-//  CameraProjectorCalibration.cpp
-//  camera_projector_calibration_CV
-//
-//  Created by kikko on 17/11/13.
-//
-//
+/*
+ * ofxCvCameraProjectorCalibration.h
+ *
+ * by Cyril Diagne - @kikko_fr
+ *
+ * Most credits for the actual cv-calibration code goes to
+ * Alvaro Cassinelli & Niklas Bergström
+ * Original :
+ * https://www.youtube.com/watch?v=pCq7u2TvlxU
+ */
 
 #include "ofxCvCameraProjectorCalibration.h"
 
