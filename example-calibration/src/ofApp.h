@@ -78,7 +78,7 @@ private:
     // params
     
     void setupDefaultParams();
-    ofParameterGroup params;
+    ofParameterGroup appParams;
     ofParameter<float> diffMinBetweenFrames;
     ofParameter<float> timeMinBetweenCaptures;
     ofParameter<string> currStateString;

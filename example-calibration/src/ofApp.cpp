@@ -40,8 +40,9 @@ void ofApp::setup(){
 
 void ofApp::setupDefaultParams(){
     
-    diffMinBetweenFrames.set("Difference min between frames", 4.0, 0, 10);
-    timeMinBetweenCaptures.set("Time min between captures", 2.0, 0, 10);
+    appParams.setName("Application");
+    appParams.add( diffMinBetweenFrames.set("Difference min between frames", 4.0, 0, 10) );
+    appParams.add( timeMinBetweenCaptures.set("Time min between captures", 2.0, 0, 10) );
     
     boardsParams.setName("Boards Params");
     boardsParams.add( numBoardsFinalCamera.set("Num boards Camera", 20, 10, 30) );
@@ -69,11 +70,7 @@ void ofApp::setupGui(){
     
     gui.add( currStateString.set("Current State", getCurrentStateString()) );
     
-    params.setName("Application");
-    params.add( diffMinBetweenFrames );
-    params.add( timeMinBetweenCaptures );
-    gui.add(params);
-    
+    gui.add(appParams);
     gui.add(boardsParams);
     gui.add(imageProcessingParams);
     
@@ -104,6 +101,7 @@ void ofApp::setState(CalibState state){
     }
     currState = state;
     
+    currStateString = getCurrentStateString();
     log() << "Set state : " << getCurrentStateString() << endl;
 }
 
