@@ -65,7 +65,6 @@ namespace ofxCv {
         const vector<cv::Point2f> & getCandidateImagePoints() const { return candidateImagePoints; }
         
     protected:
-        ofxCv::Calibration * pair;
         cv::Size imagerSize;
         cv::Point2f patternPosition;
         
