@@ -28,9 +28,7 @@
 		C684E419183AC19700CDEADF /* ofxSlider.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C684E40E183AC19700CDEADF /* ofxSlider.cpp */; };
 		C684E41A183AC19700CDEADF /* ofxSliderGroup.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C684E410183AC19700CDEADF /* ofxSliderGroup.cpp */; };
 		C684E41B183AC19700CDEADF /* ofxToggle.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C684E412183AC19700CDEADF /* ofxToggle.cpp */; };
-		C684E497183AC23500CDEADF /* CameraProjectorCalibration.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C684E48B183AC23500CDEADF /* CameraProjectorCalibration.cpp */; };
-		C684E498183AC23500CDEADF /* ofxCvCameraProjector.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C684E48D183AC23500CDEADF /* ofxCvCameraProjector.cpp */; };
-		C684E499183AC23500CDEADF /* CustomCalibration.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C684E48F183AC23500CDEADF /* CustomCalibration.cpp */; };
+		C684E497183AC23500CDEADF /* ofxCvCameraProjectorCalibration.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C684E48B183AC23500CDEADF /* ofxCvCameraProjectorCalibration.cpp */; };
 		E4328149138ABC9F0047C5CB /* openFrameworksDebug.a in Frameworks */ = {isa = PBXBuildFile; fileRef = E4328148138ABC890047C5CB /* openFrameworksDebug.a */; };
 		E45BE97B0E8CC7DD009D7055 /* AGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E45BE9710E8CC7DD009D7055 /* AGL.framework */; };
 		E45BE97C0E8CC7DD009D7055 /* ApplicationServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E45BE9720E8CC7DD009D7055 /* ApplicationServices.framework */; };
@@ -188,12 +186,8 @@
 		C684E460183AC23400CDEADF /* addon_config.mk */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = addon_config.mk; sourceTree = "<group>"; };
 		C684E488183AC23500CDEADF /* ofxaddons_thumbnail.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = ofxaddons_thumbnail.png; sourceTree = "<group>"; };
 		C684E489183AC23500CDEADF /* readme.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = readme.md; sourceTree = "<group>"; };
-		C684E48B183AC23500CDEADF /* CameraProjectorCalibration.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CameraProjectorCalibration.cpp; sourceTree = "<group>"; };
-		C684E48C183AC23500CDEADF /* CameraProjectorCalibration.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CameraProjectorCalibration.h; sourceTree = "<group>"; };
-		C684E48D183AC23500CDEADF /* ofxCvCameraProjector.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ofxCvCameraProjector.cpp; sourceTree = "<group>"; };
-		C684E48E183AC23500CDEADF /* ofxCvCameraProjector.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ofxCvCameraProjector.h; sourceTree = "<group>"; };
-		C684E48F183AC23500CDEADF /* CustomCalibration.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CustomCalibration.cpp; sourceTree = "<group>"; };
-		C684E490183AC23500CDEADF /* CustomCalibration.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CustomCalibration.h; sourceTree = "<group>"; };
+		C684E48B183AC23500CDEADF /* ofxCvCameraProjectorCalibration.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ofxCvCameraProjectorCalibration.cpp; sourceTree = "<group>"; };
+		C684E48C183AC23500CDEADF /* ofxCvCameraProjectorCalibration.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ofxCvCameraProjectorCalibration.h; sourceTree = "<group>"; };
 		E4328143138ABC890047C5CB /* openFrameworksLib.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = openFrameworksLib.xcodeproj; path = ../../../libs/openFrameworksCompiled/project/osx/openFrameworksLib.xcodeproj; sourceTree = SOURCE_ROOT; };
 		E45BE9710E8CC7DD009D7055 /* AGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AGL.framework; path = /System/Library/Frameworks/AGL.framework; sourceTree = "<absolute>"; };
 		E45BE9720E8CC7DD009D7055 /* ApplicationServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ApplicationServices.framework; path = /System/Library/Frameworks/ApplicationServices.framework; sourceTree = "<absolute>"; };
@@ -660,12 +654,8 @@
 		C684E48A183AC23500CDEADF /* src */ = {
 			isa = PBXGroup;
 			children = (
-				C684E48B183AC23500CDEADF /* CameraProjectorCalibration.cpp */,
-				C684E48C183AC23500CDEADF /* CameraProjectorCalibration.h */,
-				C684E48F183AC23500CDEADF /* CustomCalibration.cpp */,
-				C684E490183AC23500CDEADF /* CustomCalibration.h */,
-				C684E48D183AC23500CDEADF /* ofxCvCameraProjector.cpp */,
-				C684E48E183AC23500CDEADF /* ofxCvCameraProjector.h */,
+				C684E48B183AC23500CDEADF /* ofxCvCameraProjectorCalibration.cpp */,
+				C684E48C183AC23500CDEADF /* ofxCvCameraProjectorCalibration.h */,
 			);
 			path = src;
 			sourceTree = "<group>";
@@ -927,7 +917,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				C684E499183AC23500CDEADF /* CustomCalibration.cpp in Sources */,
 				E4B69E200A3A1BDC003C02F2 /* main.cpp in Sources */,
 				b6840996567e78436f7ecfab2ec70089 /* ETF.cpp in Sources */,
 				f76b4a79bd8de4854141cb47028addb7 /* fdog.cpp in Sources */,
@@ -938,11 +927,10 @@
 				C684E415183AC19700CDEADF /* ofxButton.cpp in Sources */,
 				2023ef517ed2d8b397511d4bf2052690 /* Helpers.cpp in Sources */,
 				c602002de761f9b52db4400a48aeaa29 /* ObjectFinder.cpp in Sources */,
-				C684E498183AC23500CDEADF /* ofxCvCameraProjector.cpp in Sources */,
 				7cdad32be4fa46701e3552c7b6b91e58 /* RunningBackground.cpp in Sources */,
 				10b69de456aed1288fc9316b62b715d7 /* Tracker.cpp in Sources */,
 				a6668c5b1272d7fcd5b5a16fd76b2bf8 /* Utilities.cpp in Sources */,
-				C684E497183AC23500CDEADF /* CameraProjectorCalibration.cpp in Sources */,
+				C684E497183AC23500CDEADF /* ofxCvCameraProjectorCalibration.cpp in Sources */,
 				C684E41A183AC19700CDEADF /* ofxSliderGroup.cpp in Sources */,
 				C684E417183AC19700CDEADF /* ofxLabel.cpp in Sources */,
 				dbcb84a37f9aecc254870d79a0a7486e /* Wrappers.cpp in Sources */,

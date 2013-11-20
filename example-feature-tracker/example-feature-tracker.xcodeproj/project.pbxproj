@@ -18,7 +18,7 @@
 		6aabab39e82af5cfea23a205b39766e6 /* ContourFinder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5fbb4a8427353aed09174be5d37a593e /* ContourFinder.cpp */; };
 		7cdad32be4fa46701e3552c7b6b91e58 /* RunningBackground.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5cbf6aed6a17ac0c17f63cc4b079b0b9 /* RunningBackground.cpp */; };
 		BBAB23CB13894F3D00AA2426 /* GLUT.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = BBAB23BE13894E4700AA2426 /* GLUT.framework */; };
-		C668575A1835878A00DBD1CB /* ofxCvCameraProjector.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C668574C1835878A00DBD1CB /* ofxCvCameraProjector.cpp */; };
+		C608530F183D0FDD00FA439B /* ofxCvCameraProjectorCalibration.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C6085304183D0FDD00FA439B /* ofxCvCameraProjectorCalibration.cpp */; };
 		C668575B1835878A00DBD1CB /* PatternTracker.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C66857501835878A00DBD1CB /* PatternTracker.cpp */; };
 		C668575C1835878A00DBD1CB /* ofxCvFeaturesTracker.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C66857541835878A00DBD1CB /* ofxCvFeaturesTracker.cpp */; };
 		C66858471835889B00DBD1CB /* opencv.a in Frameworks */ = {isa = PBXBuildFile; fileRef = C66857C01835889A00DBD1CB /* opencv.a */; };
@@ -156,9 +156,12 @@
 		9dbd717072c35d324e1016697d7aa720 /* Distance.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 30; name = Distance.cpp; path = ../../ofxCv/libs/ofxCv/src/Distance.cpp; sourceTree = SOURCE_ROOT; };
 		9ff9126184dfbde8a912373ebe9d2f9d /* highgui.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 30; name = highgui.h; path = ../../ofxOpenCv/libs/opencv/include/opencv/highgui.h; sourceTree = SOURCE_ROOT; };
 		BBAB23BE13894E4700AA2426 /* GLUT.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GLUT.framework; path = ../../../libs/glut/lib/osx/GLUT.framework; sourceTree = "<group>"; };
-		C66857351835878900DBD1CB /* addon_config.mk */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = addon_config.mk; sourceTree = "<group>"; };
-		C668574C1835878A00DBD1CB /* ofxCvCameraProjector.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ofxCvCameraProjector.cpp; sourceTree = "<group>"; };
-		C668574D1835878A00DBD1CB /* ofxCvCameraProjector.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ofxCvCameraProjector.h; sourceTree = "<group>"; };
+		C60852B9183D0FDC00FA439B /* .gitignore */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = .gitignore; sourceTree = "<group>"; };
+		C60852BA183D0FDC00FA439B /* addon_config.mk */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = addon_config.mk; sourceTree = "<group>"; };
+		C6085301183D0FDD00FA439B /* ofxaddons_thumbnail.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = ofxaddons_thumbnail.png; sourceTree = "<group>"; };
+		C6085302183D0FDD00FA439B /* readme.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = readme.md; sourceTree = "<group>"; };
+		C6085304183D0FDD00FA439B /* ofxCvCameraProjectorCalibration.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ofxCvCameraProjectorCalibration.cpp; sourceTree = "<group>"; };
+		C6085305183D0FDD00FA439B /* ofxCvCameraProjectorCalibration.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ofxCvCameraProjectorCalibration.h; sourceTree = "<group>"; };
 		C66857501835878A00DBD1CB /* PatternTracker.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PatternTracker.cpp; sourceTree = "<group>"; };
 		C66857511835878A00DBD1CB /* PatternTracker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PatternTracker.h; sourceTree = "<group>"; };
 		C66857521835878A00DBD1CB /* readme.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = readme.md; sourceTree = "<group>"; };
@@ -530,7 +533,7 @@
 		BB4B014C10F69532006C3DED /* addons */ = {
 			isa = PBXGroup;
 			children = (
-				C66857341835878900DBD1CB /* ofxCvCameraProjector */,
+				C60852B8183D0FDC00FA439B /* ofxCvCameraProjector */,
 				C668574E1835878A00DBD1CB /* ofxCvFeaturesTracker */,
 				6025faf6414c2ca589764d26b59a2f04 /* ofxCv */,
 				a0b90d3b0adb9c1716816714bf7f212b /* ofxOpenCv */,
@@ -568,21 +571,24 @@
 			name = "3rd party frameworks";
 			sourceTree = "<group>";
 		};
-		C66857341835878900DBD1CB /* ofxCvCameraProjector */ = {
+		C60852B8183D0FDC00FA439B /* ofxCvCameraProjector */ = {
 			isa = PBXGroup;
 			children = (
-				C66857351835878900DBD1CB /* addon_config.mk */,
-				C668574B1835878A00DBD1CB /* src */,
+				C60852B9183D0FDC00FA439B /* .gitignore */,
+				C60852BA183D0FDC00FA439B /* addon_config.mk */,
+				C6085301183D0FDD00FA439B /* ofxaddons_thumbnail.png */,
+				C6085302183D0FDD00FA439B /* readme.md */,
+				C6085303183D0FDD00FA439B /* src */,
 			);
 			name = ofxCvCameraProjector;
 			path = ..;
 			sourceTree = "<group>";
 		};
-		C668574B1835878A00DBD1CB /* src */ = {
+		C6085303183D0FDD00FA439B /* src */ = {
 			isa = PBXGroup;
 			children = (
-				C668574C1835878A00DBD1CB /* ofxCvCameraProjector.cpp */,
-				C668574D1835878A00DBD1CB /* ofxCvCameraProjector.h */,
+				C6085304183D0FDD00FA439B /* ofxCvCameraProjectorCalibration.cpp */,
+				C6085305183D0FDD00FA439B /* ofxCvCameraProjectorCalibration.h */,
 			);
 			path = src;
 			sourceTree = "<group>";
@@ -901,7 +907,6 @@
 				5cc34d433f5806179935b89ddc75729f /* Flow.cpp in Sources */,
 				2023ef517ed2d8b397511d4bf2052690 /* Helpers.cpp in Sources */,
 				c602002de761f9b52db4400a48aeaa29 /* ObjectFinder.cpp in Sources */,
-				C668575A1835878A00DBD1CB /* ofxCvCameraProjector.cpp in Sources */,
 				7cdad32be4fa46701e3552c7b6b91e58 /* RunningBackground.cpp in Sources */,
 				10b69de456aed1288fc9316b62b715d7 /* Tracker.cpp in Sources */,
 				a6668c5b1272d7fcd5b5a16fd76b2bf8 /* Utilities.cpp in Sources */,
@@ -910,6 +915,7 @@
 				250a95ba26587be85db0a353e6e1dea2 /* ofxCvColorImage.cpp in Sources */,
 				1d5f3298c2fa073628012944b1efde88 /* ofxCvContourFinder.cpp in Sources */,
 				169d3c72fde6c5590a1616f500a456b4 /* ofxCvFloatImage.cpp in Sources */,
+				C608530F183D0FDD00FA439B /* ofxCvCameraProjectorCalibration.cpp in Sources */,
 				fb09c6b2a1da0ea217240cb8b2bf4b85 /* ofxCvGrayscaleImage.cpp in Sources */,
 				e212c821d1064b92dd953a42edc08aa7 /* ofxCvHaarFinder.cpp in Sources */,
 				63020f16c7e8ded9801112417e67ad38 /* ofxCvImage.cpp in Sources */,
@@ -931,6 +937,7 @@
 /* Begin XCBuildConfiguration section */
 		E4B69B4E0A3A1720003C02F2 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = E4EB6923138AFD0F00A09F29 /* Project.xcconfig */;
 			buildSettings = {
 				ARCHS = "$(NATIVE_ARCH)";
 				CONFIGURATION_BUILD_DIR = "$(SRCROOT)/bin/";
@@ -996,6 +1003,7 @@
 		};
 		E4B69B4F0A3A1720003C02F2 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = E4EB6923138AFD0F00A09F29 /* Project.xcconfig */;
 			buildSettings = {
 				ARCHS = "$(NATIVE_ARCH)";
 				CONFIGURATION_BUILD_DIR = "$(SRCROOT)/bin/";

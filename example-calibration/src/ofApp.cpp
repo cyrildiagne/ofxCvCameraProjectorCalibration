@@ -23,19 +23,36 @@ void ofApp::setup(){
     screenRect.set(0,0,1280,800);
     projectorRect.set(1280,0,1280,800);
     
-    camProjCalib.setup(PROJECTOR_STATIC, projectorRect.width, projectorRect.height);
+    camProjCalib.setup(projectorRect.width, projectorRect.height);
     
     setupDefaultParams();
     setupGui();
     
 	lastTime = 0;
     bProjectorRefreshLock = true;
+    
+    bLog = true;
+    
+    setState(PROJECTOR_STATIC);
+    
+    log() << "Calibration started at step : " << getCurrentStateString() << endl;
 }
 
 void ofApp::setupDefaultParams(){
     
     diffMinBetweenFrames.set("Difference min between frames", 4.0, 0, 10);
     timeMinBetweenCaptures.set("Time min between captures", 2.0, 0, 10);
+    
+    boardsParams.setName("Boards Params");
+    boardsParams.add( numBoardsFinalCamera.set("Num boards Camera", 20, 10, 30) );
+    boardsParams.add( numBoardsFinalProjector.set("Num boards Projector", 12, 6, 15) );
+    boardsParams.add( numBoardsBeforeCleaning.set("Num boards before cleaning", 8, 5, 10) );
+    boardsParams.add( numBoardsBeforeDynamicProjection.set("Num boards before dynamic proj", 5, 3, 10) );
+    boardsParams.add( maxReprojErrorCamera.set("Max reproj error Camera", 0.2, 0.1, 0.5) );
+    boardsParams.add( maxReprojErrorProjector.set("Max reproj error Projector", 0.6, 0.1, 1.0) );
+    
+    imageProcessingParams.setName("Processing Params");
+    imageProcessingParams.add( circleDetectionThreshold.set("Circle image threshold", 220, 150, 255) );
 }
 
 void ofApp::setupGui(){
@@ -50,17 +67,56 @@ void ofApp::setupGui(){
     gui.setBackgroundColor(ofColor(0,0,0,0));
     gui.setPosition(640*1.5 + 10, 10);
     
-    gui.add( currState.set("Current State", camProjCalib.getCurrentStateString()) );
+    gui.add( currStateString.set("Current State", getCurrentStateString()) );
     
     params.setName("Application");
     params.add( diffMinBetweenFrames );
     params.add( timeMinBetweenCaptures );
     gui.add(params);
     
-    gui.add(camProjCalib.boardsParams);
-    gui.add(camProjCalib.imageProcessingParams);
+    gui.add(boardsParams);
+    gui.add(imageProcessingParams);
     
     gui.loadFromFile("settings.xml");
+}
+
+#pragma mark - App states
+
+void ofApp::setState(CalibState state){
+    
+    CameraCalibration & calibrationCamera = camProjCalib.getCalibrationCamera();
+    ProjectorCalibration & calibrationProjector = camProjCalib.getCalibrationProjector();
+    
+    switch (state) {
+        case CAMERA:
+            camProjCalib.resetBoards();
+            break;
+        case PROJECTOR_STATIC:
+            calibrationCamera.load("calibrationCamera.yml");
+            camProjCalib.resetBoards();
+            calibrationCamera.setupCandidateObjectPoints();
+            calibrationProjector.setStaticCandidateImagePoints();
+            break;
+        case PROJECTOR_DYNAMIC:
+            break;
+        default:
+            break;
+    }
+    currState = state;
+    
+    log() << "Set state : " << getCurrentStateString() << endl;
+}
+
+string ofApp::getCurrentStateString(){
+    
+    string name;
+    switch (currState) {
+        case CAMERA:            name = "CAMERA"; break;
+        case PROJECTOR_STATIC:  name = "PROJECTOR_STATIC"; break;
+        case PROJECTOR_DYNAMIC: name = "PROJECTOR_DYNAMIC"; break;
+        default: break;
+    }
+    return name;
 }
 
 #pragma mark - Update
@@ -72,12 +128,12 @@ void ofApp::update(){
 	if(cam.isFrameNew()) {		
 		Mat camMat = toCv(cam);
         
-        switch (camProjCalib.getCurrentState()) {
+        switch (currState) {
             case CAMERA:
                 if( !updateCamDiff(camMat) ){
                     return;
                 }
-                if(camProjCalib.calibrateCamera(camMat)){
+                if(calibrateCamera(camMat)){
                     lastTime = ofGetElapsedTimef();
                 }
                 break;
@@ -85,7 +141,7 @@ void ofApp::update(){
                 if( !updateCamDiff(camMat) ){
                     return;
                 }
-                if(camProjCalib.calibrateProjector(camMat)){
+                if(calibrateProjector(camMat)){
                     lastTime = ofGetElapsedTimef();
                 }
                 break;
@@ -98,7 +154,7 @@ void ofApp::update(){
                         bProjectorRefreshLock = false;
                     }
                 } else {
-                    camProjCalib.calibrateProjector(camMat);
+                    calibrateProjector(camMat);
                     bProjectorRefreshLock = true;
                     lastTime = ofGetElapsedTimef();
                 }
@@ -121,6 +177,113 @@ bool ofApp::updateCamDiff(cv::Mat camMat) {
     return timeMinBetweenCaptures < timeDiff && diffMinBetweenFrames > diffMean;
 }
 
+void ofApp::processImageForCircleDetection(cv::Mat img){
+    
+    if(img.type() != CV_8UC1) {
+        cvtColor(img, processedImg, CV_RGB2GRAY);
+    } else {
+        processedImg = img;
+    }
+    cv::threshold(processedImg, processedImg, circleDetectionThreshold, 255, cv::THRESH_BINARY_INV);
+}
+
+bool ofApp::calibrateCamera(cv::Mat img){
+    
+    CameraCalibration & calibrationCamera = camProjCalib.getCalibrationCamera();
+    
+    bool bFound = calibrationCamera.add(img);
+    if(bFound){
+        
+        log() << "Found board!" << endl;
+        
+        calibrationCamera.calibrate();
+        
+        if(calibrationCamera.size() >= numBoardsBeforeCleaning) {
+            
+            log() << "Cleaning" << endl;
+            
+            calibrationCamera.clean(maxReprojErrorCamera);
+            
+            if(calibrationCamera.getReprojectionError(calibrationCamera.size()-1) > maxReprojErrorCamera) {
+                log() << "Board found, but reproj. error is too high, skipping" << endl;
+                return false;
+            }
+        }
+        
+        if (calibrationCamera.size()>=numBoardsFinalCamera) {
+            
+            calibrationCamera.save("calibrationCamera.yml");
+            
+            log() << "Camera calibration finished & saved to calibrationCamera.yml" << endl;
+            
+            setState(PROJECTOR_STATIC);
+        }
+    } else log() << "Could not find board" << endl;
+    
+    return bFound;
+}
+
+bool ofApp::calibrateProjector(cv::Mat img){
+    
+    CameraCalibration & calibrationCamera = camProjCalib.getCalibrationCamera();
+    ProjectorCalibration & calibrationProjector = camProjCalib.getCalibrationProjector();
+    
+    processImageForCircleDetection(img);
+    
+    if(camProjCalib.addProjected(img, processedImg)){
+        
+        log() << "Calibrating projector" << endl;
+        
+        calibrationProjector.calibrate();
+        
+        if(calibrationProjector.size() >= numBoardsBeforeCleaning) {
+            
+            log() << "Cleaning" << endl;
+            
+            int numBoardRemoved = camProjCalib.cleanStereo(maxReprojErrorProjector);
+            
+            log() << numBoardRemoved << " boards removed";
+            
+            if(currState == PROJECTOR_DYNAMIC && calibrationProjector.size() < numBoardsBeforeDynamicProjection) {
+                log() << "Too many boards removed, restarting to PROJECTOR_STATIC" << endl;
+                setState(PROJECTOR_STATIC);
+                return false;
+            }
+        }
+        
+        log() << "Performing stereo-calibration" << endl;
+        
+        camProjCalib.stereoCalibrate();
+        
+        log() << "Done" << endl;
+        
+        if(currState == PROJECTOR_STATIC) {
+            
+            if( calibrationProjector.size() < numBoardsBeforeDynamicProjection) {
+                log() << numBoardsBeforeDynamicProjection - calibrationProjector.size() << " boards to go before dynamic projection" << endl;
+            } else {
+                setState(PROJECTOR_DYNAMIC);
+            }
+            
+        } else {
+            
+            if( calibrationProjector.size() < numBoardsFinalProjector) {
+                log() << numBoardsFinalProjector - calibrationProjector.size() << " boards to go to completion" << endl;
+            } else {
+                calibrationProjector.save("calibrationProjector.yml");
+                log() << "Projector calibration finished & saved to calibrationProjector.yml" << endl;
+                
+                camProjCalib.saveExtrinsics("CameraProjectorExtrinsics.yml");
+                log() << "Stereo Calibration finished & saved to CameraProjectorExtrinsics.yml" << endl;
+                
+                log() << "Congrats, you made it ;)" << endl;
+            }
+        }
+        return true;
+    }
+    return false;
+}
+
 
 #pragma mark - Draw
 
@@ -129,15 +292,13 @@ void ofApp::draw(){
     cam.draw(0, 0);
     drawLastCameraImagePoints();
     
-    currState = camProjCalib.getCurrentStateString();
-    
     gui.draw();
     
     ofDrawBitmapStringHighlight("Movement: "+ofToString(diffMean), 10, 20, ofxCv::cyanPrint);
     
     drawReprojErrors("Camera", camProjCalib.getCalibrationCamera(), 40);
     
-    switch (camProjCalib.getCurrentState()) {
+    switch (currState) {
         case CAMERA:
             drawReprojLog(camProjCalib.getCalibrationCamera(), 60);
             break;
@@ -145,8 +306,8 @@ void ofApp::draw(){
         case PROJECTOR_DYNAMIC:
             drawReprojErrors("Projector", camProjCalib.getCalibrationProjector(), 60);
             drawReprojLog(camProjCalib.getCalibrationProjector(), 80);
-            if(ofxCv::getAllocated(camProjCalib.getProcessedImg())){
-                ofxCv::drawMat(camProjCalib.getProcessedImg(), 640, 0, 320, 240);
+            if(ofxCv::getAllocated(processedImg)){
+                ofxCv::drawMat(processedImg, 640, 0, 320, 240);
             }
             drawProjectorPattern();
             break;
@@ -155,11 +316,10 @@ void ofApp::draw(){
             break;
     }
     
-    ofDrawBitmapString(camProjCalib.getLog(20), 10, cam.height+20);
+    ofDrawBitmapString(getLog(20), 10, cam.height+20);
 }
 
 void ofApp::drawReprojErrors(string name, const ofxCv::Calibration & calib, int y){
-    
     string buff;
     buff = name + " Reproj. Error: " + ofToString(calib.getReprojectionError(), 2);
     buff += " from " + ofToString(calib.size());
@@ -167,7 +327,6 @@ void ofApp::drawReprojErrors(string name, const ofxCv::Calibration & calib, int 
 }
 
 void ofApp::drawReprojLog(const ofxCv::Calibration & calib, int y) {
-    
     string buff;
 	for(int i = 0; i < calib.size(); i++) {
         buff = ofToString(i) + ": " + ofToString(calib.getReprojectionError(i));
@@ -211,4 +370,22 @@ void ofApp::drawProjectorPattern(){
 void ofApp::keyPressed(int key){
     
     
+}
+
+#pragma mark - Log
+
+string ofApp::getLog(int numLines){
+    
+    vector<string> elems;
+    stringstream ss(log_.str());
+    string buff;
+    while (getline(ss, buff)) elems.push_back(buff);
+    numLines = fmin(elems.size(), numLines);
+    buff = "";
+    if(elems.size()>0) {
+        for (int i=elems.size()-1; i>elems.size()-numLines; i--) {
+            buff = elems[i] + "\n" + buff;
+        }
+    }
+    return buff;
 }

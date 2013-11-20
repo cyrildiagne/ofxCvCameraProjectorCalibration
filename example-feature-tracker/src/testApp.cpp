@@ -15,6 +15,9 @@ void testApp::setup() {
     setupCamProj();
     setupTracker();
     
+    rotObjToProj = Mat::zeros(3, 1, CV_64F);
+    transObjToProj = Mat::zeros(3, 1, CV_64F);
+    
     bDrawDebug = true;
     bDrawWithCV = false;
     bFound = false;
@@ -23,9 +26,7 @@ void testApp::setup() {
 void testApp::setupCamProj(){
     rotObjToCam = Mat::zeros(3, 1, CV_64F);
     transObjToCam = Mat::zeros(3, 1, CV_64F);
-    ofRectangle screenRect    = ofRectangle(0, 0, SCREEN_WIDTH, ofGetHeight());
-    ofRectangle projectorRect = ofRectangle(SCREEN_WIDTH, 0, PROJECTOR_WIDTH, ofGetHeight());
-    camproj.setup(screenRect, projectorRect);
+    camproj.load("calibrationCamera.yml", "calibrationProjector.yml", "CameraProjectorExtrinsics.yml");
 }
 
 void testApp::setupTracker(){
@@ -60,13 +61,14 @@ void testApp::update() {
             
             // hacks to adjust results
             for (int i=0; i<3; i++) { *tvec.ptr<double>(i) *= 9.3; } // TODO : find this scaling value in configuration files
+            *tvec.ptr<double>(1) += 1;
             
             // smooth results
             rotObjToCam += (rvec-rotObjToCam) * 0.3;
             transObjToCam += (tvec-transObjToCam) * 0.3;
             
             // update the object-to-projector
-            camproj.update(rotObjToCam, transObjToCam);
+            //camproj.update(rotObjToCam, transObjToCam);
             
             bFound = true;
         }
@@ -89,7 +91,7 @@ void testApp::draw() {
         
         if(bDrawDebug){
             tracker.draw();
-            ofDrawBitmapString(camproj.toString(), 20, 500);
+            ofDrawBitmapString(getRTMatInfos(rotObjToCam, transObjToCam), 20, 500);
         }
         
         if(bDrawWithCV) drawUsingCV();
@@ -102,14 +104,14 @@ void testApp::drawUsingCV(){
     // set some input points
     float w = 12.5 / 2;
     int h = 19 / 2;
-    vector<ofPoint> inPts;
-    inPts.push_back(ofPoint(-w, -h, 0));
-    inPts.push_back(ofPoint(w, -h, 0));
-    inPts.push_back(ofPoint(w, h, 0));
-    inPts.push_back(ofPoint(-w, h, 0));
+    vector<Point3f> inPts;
+    inPts.push_back(Point3f(-w, -h, 0));
+    inPts.push_back(Point3f(w, -h, 0));
+    inPts.push_back(Point3f(w, h, 0));
+    inPts.push_back(Point3f(-w, h, 0));
     
     // get videoproj's projection of inputPts
-    vector<ofPoint> outPts = camproj.getProjected(inPts);
+    vector<cv::Point2f> outPts = camproj.getProjected(inPts, rotObjToCam, transObjToCam);
     
     // project the inputPts over the object
     ofPushMatrix();
@@ -117,7 +119,7 @@ void testApp::drawUsingCV(){
     ofSetColor(ofColor::red);
     for (int i=0; i<outPts.size(); i++){
         int next = (i+1) % outPts.size();
-        ofLine(outPts[i], outPts[next]);
+        ofLine(outPts[i].x, outPts[i].y, outPts[next].x, outPts[next].y);
     }
     ofPopMatrix();
     
@@ -133,7 +135,17 @@ void testApp::drawUsingCV(){
 
 void testApp::drawUsingGL(){
     
-    camproj.beginGL();
+    ofPushMatrix();
+    
+    // Set perspective matrix using the projector intrinsics
+    ofPoint projectorOffset = ofPoint(1280, 0);
+    camproj.getCalibrationProjector().getDistortedIntrinsics().loadProjectionMatrix(1, 10000, projectorOffset);
+    
+    // apply model to projector transformations
+    cv::composeRT(rotObjToCam,  transObjToCam,
+                  camproj.getCamToProjRotation(), camproj.getCamToProjTranslation(),
+                  rotObjToProj, transObjToProj);
+    applyMatrix(makeMatrix(rotObjToProj, transObjToProj));
     
     ofScale(0.04, 0.04, 0); // todo : find this value in configuration files
     
@@ -151,7 +163,20 @@ void testApp::drawUsingGL(){
         ofRect(-cw*0.5, -ch*0.5, cw, ch);
     }
     
-    camproj.endGL(); //!\ doesn't work yet
+    ofPopMatrix();
+    
+    // TODO : restore GL matrices
+}
+
+string testApp::getRTMatInfos(const cv::Mat rvecs, const cv::Mat tvecs){
+    cv::Mat rot3x3 = cv::Mat::zeros(3, 3, CV_32F);
+    Rodrigues(rvecs, rot3x3);
+    stringstream imgRTs;
+    for (int i=0; i<3; i++) {
+        for (int j=0; j<3; j++)  imgRTs << ofToString(rot3x3.at<double>(i,j),1) << "\t";
+        imgRTs << ofToString(tvecs.at<double>(i),1) << endl;
+    }
+    return imgRTs.str();
 }
 
 void testApp::keyPressed(int key){

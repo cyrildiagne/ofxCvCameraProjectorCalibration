@@ -3,7 +3,7 @@
 #include "ofMain.h"
 #include "ofxCv.h"
 #include "ofxCvFeaturesTrackerThreaded.h"
-#include "ofxCvCameraProjector.h"
+#include "ofxCvCameraProjectorCalibration.h"
 
 #define SCREEN_WIDTH 1280
 #define SCREEN_HEIGHT 800
@@ -34,11 +34,14 @@ private:
     ofImage trackedImg;
     
     ofxCv::FeaturesTrackerThreaded tracker;
-    ofxCv::CameraProjector camproj;
+    ofxCv::CameraProjectorCalibration camproj;
     cv::Mat rotObjToCam, transObjToCam;
+    cv::Mat rotObjToProj, transObjToProj;
     
     bool bDrawDebug;
     bool bDrawWithCV;
+    
+    string getRTMatInfos(const cv::Mat rvecs, const cv::Mat tvecs);
     
     // since we're using the threaded tracker, "found" status can change between update() and draw() calls
     // so we store its value here
