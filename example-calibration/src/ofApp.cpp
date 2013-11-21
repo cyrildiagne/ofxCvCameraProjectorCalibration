@@ -127,36 +127,39 @@ void ofApp::update(){
 		Mat camMat = toCv(cam);
         
         switch (currState) {
+                
             case CAMERA:
-                if( !updateCamDiff(camMat) ){
-                    return;
-                }
-                if(calibrateCamera(camMat)){
+                if( !updateCamDiff(camMat) ) return;
+                
+                if( calibrateCamera(camMat) ){
                     lastTime = ofGetElapsedTimef();
                 }
                 break;
+                
             case PROJECTOR_STATIC:
-                if( !updateCamDiff(camMat) ){
-                    return;
-                }
-                if(calibrateProjector(camMat)){
+                if( !updateCamDiff(camMat) ) return;
+                
+                if( calibrateProjector(camMat) ){
                     lastTime = ofGetElapsedTimef();
                 }
                 break;
+                
             case PROJECTOR_DYNAMIC:
                 if(bProjectorRefreshLock){
-                    if(camProjCalib.setDynamicProjectorImagePoints(camMat)){
-                        if( !updateCamDiff(camMat) ){
-                            return;
-                        }
+                    if( camProjCalib.setDynamicProjectorImagePoints(camMat) ){
+                        if( !updateCamDiff(camMat) ) return;
+                        
                         bProjectorRefreshLock = false;
                     }
-                } else {
-                    calibrateProjector(camMat);
+                }
+                else {
+                    if( calibrateProjector(camMat) ) {
+                        lastTime = ofGetElapsedTimef();
+                    }
                     bProjectorRefreshLock = true;
-                    lastTime = ofGetElapsedTimef();
                 }
                 break;
+                
             default: break;
         }
     }

@@ -15,15 +15,14 @@ void testApp::setup() {
     setupCamProj();
     setupTracker();
     
-    rotObjToProj = Mat::zeros(3, 1, CV_64F);
-    transObjToProj = Mat::zeros(3, 1, CV_64F);
-    
     bDrawDebug = true;
-    bDrawWithCV = false;
+    bDrawWithCV = true;
     bFound = false;
 }
 
 void testApp::setupCamProj(){
+    rotObjToProj = Mat::zeros(3, 1, CV_64F);
+    transObjToProj = Mat::zeros(3, 1, CV_64F);
     rotObjToCam = Mat::zeros(3, 1, CV_64F);
     transObjToCam = Mat::zeros(3, 1, CV_64F);
     camproj.load("calibrationCamera.yml", "calibrationProjector.yml", "CameraProjectorExtrinsics.yml");
@@ -60,15 +59,12 @@ void testApp::update() {
             tracker.getRT(rvec, tvec);
             
             // hacks to adjust results
-            for (int i=0; i<3; i++) { *tvec.ptr<double>(i) *= 9.3; } // TODO : find this scaling value in configuration files
-            *tvec.ptr<double>(1) += 1;
+            for (int i=0; i<3; i++) { *tvec.ptr<double>(i) *= 9.35; } // TODO : find this scaling value in configuration files
+            *tvec.ptr<double>(1) += 1; // TODO : remove this y axis hack
             
             // smooth results
             rotObjToCam += (rvec-rotObjToCam) * 0.3;
             transObjToCam += (tvec-transObjToCam) * 0.3;
-            
-            // update the object-to-projector
-            //camproj.update(rotObjToCam, transObjToCam);
             
             bFound = true;
         }
@@ -147,7 +143,9 @@ void testApp::drawUsingGL(){
                   rotObjToProj, transObjToProj);
     applyMatrix(makeMatrix(rotObjToProj, transObjToProj));
     
-    ofScale(0.04, 0.04, 0); // todo : find this value in configuration files
+    ofVec2f bookSizeCm = ofVec2f(12.5, 19);
+    ofVec2f bookSizePx = ofVec2f(305, 468);
+    ofScale(bookSizeCm.x/bookSizePx.x, bookSizeCm.y/bookSizePx.y, 0);
     
     // project some square animation
     float w = trackedImg.width;
