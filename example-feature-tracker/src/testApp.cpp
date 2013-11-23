@@ -134,8 +134,7 @@ void testApp::drawUsingGL(){
     ofPushMatrix();
     
     // Set perspective matrix using the projector intrinsics
-    ofPoint projectorOffset = ofPoint(1280, 0);
-    camproj.getCalibrationProjector().getDistortedIntrinsics().loadProjectionMatrix(1, 10000, projectorOffset);
+    camproj.getCalibrationProjector().getDistortedIntrinsics().loadProjectionMatrix(1, 10000, cv::Point2d(1280, 0));
     
     // apply model to projector transformations
     cv::composeRT(rotObjToCam,  transObjToCam,
