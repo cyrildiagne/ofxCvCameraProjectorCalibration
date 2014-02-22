@@ -1,6 +1,6 @@
 *.app
 example-feature-tracker/bin/data/*.png
-example-calibration/bin/
+example-calibration/bin/*.app
 
 # OS-specific ignore patterns
 
