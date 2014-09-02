@@ -1,5 +1,8 @@
 # ofxCvCameraProjectorCalibration
 
+
+* Status : Highly experimental. Don't expect anything to work out of the box, until I have time to do a new pass on the routine! *
+
 **OpenFrameworks addon that helps calibrating a camera and a projector using OpenCV**
 
 Most credits for the actual cv-calibration code goes to
