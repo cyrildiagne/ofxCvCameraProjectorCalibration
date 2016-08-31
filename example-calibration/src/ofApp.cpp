@@ -354,7 +354,7 @@ void ofApp::drawProjectorPattern(){
     ofViewport(projectorRect);
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    gluOrtho2D(0,projectorRect.width, projectorRect.height, 0);
+    glOrtho(0, projectorRect.width, projectorRect.height, 0, -1, 1);
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
     {
